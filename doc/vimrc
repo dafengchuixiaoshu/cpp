@@ -1,0 +1,343 @@
+"PluginList       - lists configured plugins
+"PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+"PluginSearch foo - searches for foo; append `!` to refresh local cache
+"PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tomasr/molokai'
+Plugin 'majutsushi/tagbar'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'xolox/vim-misc'
+Plugin 'xolox/vim-easytags'
+Plugin 'vim-scripts/SuperTab'
+Plugin 'vim-scripts/ctags.vim'
+Plugin 'vim-scripts/taglist.vim'
+Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'Shougo/neocomplcache.vim'
+call vundle#end()            " required
+filetype plugin indent on    " required
+
+syntax on
+syntax enable
+
+filetype on
+filetype plugin on
+
+augroup vimrcEx
+  autocmd!
+
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it for commit messages, when the position is invalid, or when
+  " inside an event handler (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+    \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g`\"" |
+    \ endif
+
+  " Cucumber navigation commands
+  autocmd User Rails Rnavcommand step features/step_definitions -glob=**/* -suffix=_steps.rb
+  autocmd User Rails Rnavcommand config config -glob=**/* -suffix=.rb -default=routes
+
+  " Set syntax highlighting for specific file types
+  autocmd BufRead,BufNewFile Appraisals set filetype=ruby
+  autocmd BufRead,BufNewFile *.md set filetype=markdown
+
+  " Enable spellchecking for Markdown
+  autocmd FileType markdown setlocal spell
+
+  " Automatically wrap at 80 characters for Markdown
+  autocmd BufRead,BufNewFile *.md setlocal textwidth=120
+augroup END
+
+" Color scheme
+colorscheme molokai
+highlight NonText guibg=#060606
+highlight Folded  guibg=#0A0A0A guifg=#9090D0
+
+" Highlight current line
+au WinLeave * set nocursorline nocursorcolumn
+au WinEnter * set cursorline cursorcolumn
+set cursorline cursorcolumn
+
+set history=500
+
+set nobackup
+set nowritebackup
+set noswapfile
+
+" Search results high light
+set hlsearch
+set incsearch     " do incremental searching
+set ignorecase smartcase " 搜索时忽略大小写，但在有一个或以上大写字母时仍保持对大小写敏感
+
+set linebreak " 整词换行
+set showmatch "高亮显示匹配的括号
+set iskeyword+=_,$,@,%,#,- "带有如下符号的单词不要被换行分割
+set whichwrap=b,s,<,>,[,] " 光标从行首和行末时可以跳到另一行去
+set ruler " 标尺，用于显示光标位置的行号和列号，逗号分隔。每个窗口都有自己的标尺。如果窗口有状态行，标尺在那里显示。否则，它显示在屏幕的最后一行上。
+
+set showcmd " 命令行显示输入的命令
+set showmode " 命令行显示vim当前模式
+
+set tabstop=4 "使用4空格代替tab
+set shiftwidth=4 "设定tab宽度
+set expandtab "使用空格替代制表符
+set softtabstop=4 " 使得按退格键时可以一次删掉 4 个空格
+set backspace=2   " Backspace deletes like most programs in insert mode
+
+set number
+"set numberwidth=5
+
+set autoindent "实施和上一行相同的缩进
+set smartindent " 开启新行时使用智能自动缩进
+set cindent "使用c/c++语音自动缩进方式
+set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s "设置C/C++语言的具体缩进方式
+
+set laststatus=2 " 显示状态栏 (默认值为 1, 无法显示状态栏)
+set statusline=\ %<%F[%1*%M%*%n%R%H]%=\ %y\ %0(%{&fileformat}\ %{&encoding}\ %c:%l/%L%)\ " 设置在状态行显示的信息
+set statusline+=%{fugitive#statusline()}
+
+" Leader
+let mapleader = ","
+"Switch between the last two files
+nnoremap <leader><leader> <c-^>
+nnoremap <leader>nu :set number<CR>
+nnoremap <leader>nn :set nonumber<CR>
+
+"-----------------------------------------------------------------
+" NERDTree
+"-----------------------------------------------------------------
+map <F2> :NERDTreeMirror<CR>
+map <F2> :NERDTreeToggle<CR>
+nnoremap <leader>nt :NERDTreeMirror<CR>
+nnoremap <leader>nt :NERDTreeToggle<CR>
+
+let NERDTreeWinPos='lelft'
+let NERDTreeWinSize=50
+
+"-----------------------------------------------------------------
+" Taglist
+"-----------------------------------------------------------------
+nnoremap <leader>tl :TlistToggle<CR>
+let Tlist_Ctags_Cmd = '/usr/local/bin/ctags'
+let Tlist_Show_One_File = 1 " 不同时显示多个文件的tag，只显示当前文件的
+let Tlist_Exit_OnlyWindow = 1 " 如果taglist窗口是最后一个窗口，则退出vim
+let Tlist_Use_Right_Window = 0 " 在右侧窗口中显示taglist窗口
+let Tlist_File_Fold_Auto_Close=1 " 自动折叠当前非编辑文件的方法列表
+let Tlist_Auto_Open = 0
+let Tlist_Auto_Update = 1
+let Tlist_Hightlight_Tag_On_BufEnter = 1
+let Tlist_Enable_Fold_Column = 0
+let Tlist_Process_File_Always = 1
+let Tlist_Display_Prototype = 0
+let Tlist_Compact_Format = 1
+let Tlist_Sort_Type='name'
+
+"-----------------------------------------------------------------
+" tagbar
+"-----------------------------------------------------------------
+map <F3> :Tagbar<CR>
+nnoremap <Leader>tb :TagbarToggle<CR>
+let g:tagbar_ctags_bin='/usr/local/bin/ctags'            "ctags程序的路径
+let g:tagbar_width=50                    "窗口宽度的设置
+let g:tagbar_left=1
+"autocmd BufReadPost *.cpp,*.c,*.h,*.hpp,*.cc,*.cxx call tagbar#autoopen()     "如果是c语言的程序的话，tagbar自动开启
+
+"-----------------------------------------------------------------
+" easytags
+"-----------------------------------------------------------------
+map <F4> :UpdateTags<CR>
+nnoremap <Leader>ut :UpdateTags<CR>
+let g:easytags_cmd = '/usr/local/bin/ctags'
+let g:easytags_auto_update = 1
+let g:easytags_autorecurse = 1
+let g:easytags_on_cursorhold = 1
+let g:easytags_auto_highlight = 1
+let g:easytags_syntax_keyword = 'always'
+
+"-----------------------------------------------------------------
+" neocomplcache
+"-----------------------------------------------------------------
+"Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
+" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
+" Use neocomplcache.
+let g:neocomplcache_enable_at_startup = 1
+" Use smartcase.
+let g:neocomplcache_enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplcache_min_syntax_length = 3
+let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+
+" Enable heavy features.
+" Use camel case completion.
+"let g:neocomplcache_enable_camel_case_completion = 1
+" Use underbar completion.
+"let g:neocomplcache_enable_underbar_completion = 1
+
+" Define dictionary.
+let g:neocomplcache_dictionary_filetype_lists = {
+    \ 'default' : '',
+    \ 'vimshell' : $HOME.'/.vimshell_hist',
+    \ 'scheme' : $HOME.'/.gosh_completions'
+        \ }
+
+" Define keyword.
+if !exists('g:neocomplcache_keyword_patterns')
+    let g:neocomplcache_keyword_patterns = {}
+endif
+let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
+
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplcache#undo_completion()
+inoremap <expr><C-l>     neocomplcache#complete_common_string()
+
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+  return neocomplcache#smart_close_popup() . "\<CR>"
+  " For no inserting <CR> key.
+  "return pumvisible() ? neocomplcache#close_popup() : "\<CR>"
+endfunction
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplcache#close_popup()
+inoremap <expr><C-e>  neocomplcache#cancel_popup()
+" Close popup by <Space>.
+"inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() : "\<Space>"
+
+" For cursor moving in insert mode(Not recommended)
+"inoremap <expr><Left>  neocomplcache#close_popup() . "\<Left>"
+"inoremap <expr><Right> neocomplcache#close_popup() . "\<Right>"
+"inoremap <expr><Up>    neocomplcache#close_popup() . "\<Up>"
+"inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
+" Or set this.
+"let g:neocomplcache_enable_cursor_hold_i = 1
+" Or set this.
+"let g:neocomplcache_enable_insert_char_pre = 1
+
+" AutoComplPop like behavior.
+"let g:neocomplcache_enable_auto_select = 1
+
+" Shell like behavior(not recommended).
+"set completeopt+=longest
+"let g:neocomplcache_enable_auto_select = 1
+"let g:neocomplcache_disable_auto_complete = 1
+"inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
+
+" Enable omni completion.
+autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+" Enable heavy omni completion.
+if !exists('g:neocomplcache_force_omni_patterns')
+  let g:neocomplcache_force_omni_patterns = {}
+endif
+let g:neocomplcache_force_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
+" For perlomni.vim setting.
+" https://github.com/c9s/perlomni.vim
+let g:neocomplcache_force_omni_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+
+"设置NeoComplCache不自动弹出补全列表
+let g:NeoComplCache_DisableAutoComplete = 0
+
+"-----------------------------------------------------------------
+" supertab
+"-----------------------------------------------------------------
+let g:SuperTabDefaultCompletionType = '<C-X><C-U>'
+
+"-----------------------------------------------------------------
+" 代码折叠
+"-----------------------------------------------------------------
+map <F5> :set nofoldenable<CR>
+"za  打开/关闭在光标下的折叠
+"zA  循环地打开/关闭光标下的折叠
+"zo  打开 (open) 在光标下的折叠
+"zO  循环打开 (Open) 光标下的折叠
+"zc  关闭 (close) 在光标下的折叠
+"zC  循环关闭 (Close) 在光标下的所有折叠
+"zM  关闭所有折叠
+"zR  打开所有的折叠
+"
+"manual           手工定义折叠
+"indent             更多的缩进表示更高级别的折叠
+"expr                用表达式来定义折叠
+"syntax             用语法高亮来定义折叠
+"diff                  对没有更改的文本进行折叠
+"marker            对文中的标志折叠
+set foldmethod=indent "syntax " 用语法高亮来定义折叠
+
+set foldlevel=100 " 启动vim时不要自动折叠代码
+set foldcolumn=10 " 设置折叠栏宽度
+
+"-----------------------------------------------------------------
+" airline：状态栏增强
+"-----------------------------------------------------------------
+"nnoremap <leader>bn :bn<CR>
+"nnoremap <leader>bp :bp<CR>
+
+"let g:airline_theme="luna" 
+
+"这个是安装字体后 必须设置此项" 
+"let g:airline_powerline_fonts = 1   
+
+"打开tabline功能,方便查看Buffer和切换，这个功能比较不错"
+"我还省去了minibufexpl插件，因为我习惯在1个Tab下用多个buffer"
+"let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#buffer_nr_show = 1
+
+"-----------------------------------------------------------------
+" 自动插入文件头
+"-----------------------------------------------------------------
+autocmd BufNewFile *.cpp,*.cc,*.h,*.sh,*.py exec ":call SetTitle()"
+func SetTitle()
+if &filetype == 'sh'
+call setline(1,"\#########################################################################")
+call append(line("."), "\# Author: 丘安-刘千国")
+call append(line(".")+1, "\# Created on: ".strftime("%Y-%m-%d %H:%M"))
+call append(line(".")+2, "\#########################################################################")
+call append(line(".")+3, "\#!/bin/bash")
+call append(line(".")+4, "")
+call append(line(".")+5, "")
+endif
+
+if &filetype == 'python'
+call setline(1, "\#!/usr/bin/python")
+call append(line("."), "\# -*- coding: UTF-8 -*-")
+call append(line(".")+1,"\#########################################################################")
+call append(line(".")+2, "\# Author: 丘安-刘千国")
+call append(line(".")+3, "\# Created on: ".strftime("%Y-%m-%d %H:%M"))
+call append(line(".")+4, "\#########################################################################")
+call append(line(".")+5, "")
+call append(line(".")+6, "")
+endif
+
+if &filetype == 'cpp' || &filetype == 'cc'
+call setline(1,          "/**")
+call append(line("."),   " *Author: 丘安-刘千国")
+call append(line(".")+1, " *Created on: ".strftime("%Y-%m-%d %H:%M"))
+call append(line(".")+2, "**/")
+call append(line(".")+3, "")
+call append(line(".")+4, "")
+endif
+
+normal G
+endfunc
+
